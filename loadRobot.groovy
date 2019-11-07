@@ -216,6 +216,11 @@ def dev = DeviceManager.getSpecificDevice( hidDeviceName,{
 	def srv = null
 	
 	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses(hidDeviceName);
+	addresses.add(
+		InetAddress.getByAddress(
+			[192, 168, 4, 1] as byte[]
+		)
+   	)
 	
 	if (addresses.size() < 1) {
 			simp = new SimpleServoHID(0x16C0 ,0x0486) 
