@@ -212,29 +212,37 @@ def gc= DeviceManager.getSpecificDevice(args[2],{
 }catch (Throwable t){}
 def dev = DeviceManager.getSpecificDevice( hidDeviceName,{
 	//If the device does not exist, prompt for the connection
-	def simp = null;
+	def simp = null
 	def srv = null
-	
-	HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses(hidDeviceName);
 
-	// Add custom IP for AP mode
-	addresses.add(
-		InetAddress.getByAddress(
-			[192, 168, 4, 1] as byte[]
-		)
-   	)
-	
-	if (addresses.size() < 1) {
-			simp = new SimpleServoHID(0x16C0 ,0x0486) 
-			srv=simp
-	}else{
-		println "Servo Servers at "+addresses
-		simp = new SimpleServoUDPImu(addresses.toArray()[0])
-		simp.setReadTimeout(30);
-		srv = new SimpleServoUDPServo(addresses.toArray()[0])
-		srv.setReadTimeout(30);
+	if (args.size() >= 5 && args[4]) {
+		// 5th param is a flag to force virtual mode
+		simp = new SimpleServoHID(0x16C0 ,0x0486) 
+		srv=simp
+	} else {
+		HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses(hidDeviceName);
+
+		// Add custom IP for AP mode
+		addresses.add(
+			InetAddress.getByAddress(
+				[192, 168, 4, 1] as byte[]
+			)
+	   	)
+		
+		if (addresses.size() < 1) {
+				simp = new SimpleServoHID(0x16C0 ,0x0486) 
+				srv=simp
+		} else {
+			println "Servo Servers at "+addresses
+			simp = new SimpleServoUDPImu(addresses.toArray()[0])
+			simp.setReadTimeout(30);
+			srv = new SimpleServoUDPServo(addresses.toArray()[0])
+			srv.setReadTimeout(30);
+		}
+		
 	}
-	HIDSimpleComsDevice d = new HIDSimpleComsDevice(simp,srv)
+
+	def d = new HIDSimpleComsDevice(simp,srv)
 	d.connect(); // Connect to it.
 	if(simp.isVirtual()){
 		println "\n\n\nDevice is in virtual mode!\n\n\n"
@@ -245,6 +253,7 @@ def dev = DeviceManager.getSpecificDevice( hidDeviceName,{
 				return new HIDRotoryLink(d,conf)
 		}
 	)
+		
 	println "Connecting new device: "+d
 	return d
 })
