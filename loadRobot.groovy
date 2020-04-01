@@ -222,6 +222,8 @@ def dev = DeviceManager.getSpecificDevice( hidDeviceName,{
 	} else {
 		HashSet<InetAddress> addresses = UDPSimplePacketComs.getAllAddresses(hidDeviceName);
 
+		println("Found " + addresses.size() + " for device name " + hidDeviceName)
+
 		// Add custom IP for AP mode
 		addresses.add(
 			InetAddress.getByAddress(
